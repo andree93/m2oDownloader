@@ -94,7 +94,6 @@ public class ListParser {
                 e.printStackTrace();
             }
             Elements links = doc.getElementsByClass(CLASSI_CONTENITORE_URL_EPISODI_E_DESCRIZIONE);
-            //Elements links = doc.getElementsByClass("title small red").first().toString();
             for (int i=0; (i<links.size()&&i<max); i++){
                 Element link = links.get(i);
                 Episodio eps = new Episodio(extractURLmp3fromPlayerPage(link.select(A_TAG).attr(JSOUP_SELECT_HREF)),link.text());  // L'oggetto episodio viene creato con URL e Nome estratti tramite i rispettivi tag elencati tra le costanti. L'URL al file .mp3 è costruito tramite il metodo "extractURLmp3fromPlayerPage", che a sua volta prende in ingresso il link alla pagina dell'episodio
