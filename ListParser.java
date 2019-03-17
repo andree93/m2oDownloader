@@ -15,7 +15,10 @@ public class ListParser {
     public static final String REGEX_MP3 = "(.*(https://media\\.m2o\\.it/.*\\.mp3).*)";
     private static final String REGEX_VALIDAZIONE_URL_LISTA_PUNTATE="(https://www\\.m2o\\.it/programmi/[a-zA-Z0-9]*+.*)";
     private static final String SELETTORE_STRINGA_PAGINA_SUCCESSIVA="next page-numbers";
-    private static final String SELETTORE_URL_EPISODIO_DA_LISTA="figure > a[href]";
+    private static final String CLASSI_CONTENITORE_URL_EPISODI_E_DESCRIZIONE="title small red";
+    private static final String JSOUP_SELECT_HREF="abs:href";
+    private static final String A_TAG="a";
+    private static final String HREF="href";
     private static final String IFRAME="iframe";
     private String url ="";
     private Elements elementi =null;
@@ -74,7 +77,7 @@ public class ListParser {
         episodi.clear();
         String nextPage = firstPage;
         parseListUrls(firstPage, maxEp);
-        while (nextPage != null && episodi.size()<maxEp) { //se il link della prossima pagina non è null (esiste una prossima pagina) e se gli episodi nella lista non sono piu di quelli che ha richiesto l'utente
+        while (nextPage != null && episodi.size()<maxEp) { //se il link della prossima pagina non Ã¨ null (esiste una prossima pagina) e se gli episodi nella lista non sono piu di quelli che ha richiesto l'utente
             nextPage = getNextPage(nextPage);  //scarico pagina successiva
             parseListUrls(nextPage, maxEp); //inserisco i link della PAGINA di ogni episodio contenuto nella pagina elaborata nello step precedente
             System.out.println("Links trovati: "+episodi.size()); //conteggio link - solo per test
@@ -90,10 +93,11 @@ public class ListParser {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Elements links = doc.select("figure > a[href]");
+            Elements links = doc.getElementsByClass(CLASSI_CONTENITORE_URL_EPISODI_E_DESCRIZIONE);
+            //Elements links = doc.getElementsByClass("title small red").first().toString();
             for (int i=0; (i<links.size()&&i<max); i++){
                 Element link = links.get(i);
-                Episodio eps = new Episodio(extractURLmp3fromPlayerPage(link.absUrl("href")),link.attr("title")); // L'oggetto episodio viene creato con URL al file mp3 e Nome. L'URL al file .mp3 tramite il metodo "extractURLmp3fromPlayerPage", che a sua volta prende in ingresso il link alla pagina dell'episodio, estratto tramite selettore "href". Il titolo viene prelevato tramite selettore "title". Entrambi i paramentri sono passati al costruttore della classe Episodio
+                Episodio eps = new Episodio(extractURLmp3fromPlayerPage(link.select(A_TAG).attr(JSOUP_SELECT_HREF)),link.text()); // L'oggetto episodio viene creato con URL al file mp3 e Nome. L'URL al file .mp3 tramite il metodo "extractURLmp3fromPlayerPage", che a sua volta prende in ingresso il link alla pagina dell'episodio, estratto tramite selettore "href". Il titolo viene prelevato tramite selettore "title". Entrambi i paramentri sono passati al costruttore della classe Episodio
                 episodi.add(eps); //viene aggiunto un nuovo oggetto Episodio all'arraylist
             }
         }
@@ -111,7 +115,7 @@ public class ListParser {
             }
             Element el = doc.getElementsByClass(SELETTORE_STRINGA_PAGINA_SUCCESSIVA).first();
             if (el != null) {
-                nextUrl = el.absUrl("href");
+                nextUrl = el.absUrl(HREF);
             }
         }
         return nextUrl;

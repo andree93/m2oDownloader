@@ -12,7 +12,7 @@ public class Main {
     public static void main(String[] args) {
     	String home=System.getProperty("user.home"); //rilevo la home directory dell'utente
     	programmi = new HashMap<>(); //hashmap nomeprogramma : relativo link
-    	programmi.put("WAVES", "https://www.m2o.it/programmi/waves/puntate/"); //Attualmente non funzionante, solo per questo programma è necessario utilizzare un diverso selettore
+    	programmi.put("WAVES", "https://www.m2o.it/programmi/waves/puntate/");
     	programmi.put("SOUNDZRISE", "https://www.m2o.it/programmi/soundzrisei-suoni-dellalba/puntate/");
     	programmi.put("GDC", "https://www.m2o.it/programmi/g-d-c/puntate/");
     	programmi.put("HOUSEHISTORY", "https://www.m2o.it/programmi/house-history/puntate/");
@@ -21,7 +21,7 @@ public class Main {
     	programmi.put("SIGNALHILLS", "https://www.m2o.it/programmi/signal-hills/puntate/");
     	programmi.put("INDAHOUSE", "https://www.m2o.it/programmi/in-da-silva-house/puntate/");
     	programmi.put("TechnoCulture", "https://www.m2o.it/programmi/techno-culture/puntate/");
-    	programmi.put("ToTheClub", "https://www.m2o.it/programmi/to-the-club/puntate/"); 
+    	programmi.put("ToTheClub", "https://www.m2o.it/programmi/to-the-club/puntate/");
     	
 
     	ExecutorService ex = Executors.newCachedThreadPool(); //creo instanza ServiceExecutor
