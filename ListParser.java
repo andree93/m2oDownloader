@@ -133,7 +133,7 @@ public class ListParser {
 
         Element urlelement = doc.selectFirst(IFRAME); //estraggo IFRAME contenente il link al file .mp3
 
-        return buildMp3Url(urlelement.toString()); //dall'iframe, estraggo il link diretto al file .mp3
+        return buildMp3Url(urlelement.toString()); //dall'iframe, estrae la stringa contenente il link diretto al file .mp3
     }
 
 
