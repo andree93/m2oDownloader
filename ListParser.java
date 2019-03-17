@@ -1,0 +1,172 @@
+package m2oReloadedDownloader;
+
+import org.jsoup.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class ListParser {
+    public static final String USER_AGENT ="Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Thunderbird/45.8.0";
+    public static final String REGEX_MP3 = "(.*(https://media\\.m2o\\.it/.*\\.mp3).*)";
+    private static final String REGEX_VALIDAZIONE_URL_LISTA_PUNTATE="(https://www\\.m2o\\.it/programmi/[a-zA-Z0-9]*+.*)";
+    private static final String SELETTORE_STRINGA_PAGINA_SUCCESSIVA="next page-numbers";
+    private static final String SELETTORE_URL_EPISODIO_DA_LISTA="figure > a[href]";
+    private static final String IFRAME="iframe";
+    private String url ="";
+    private Elements elementi =null;
+    private Document doc;
+    private List<Episodio> episodi;
+
+    public ListParser() {
+        super();
+        episodi = new ArrayList<Episodio>(12);
+    }
+
+
+    public ListParser(String url) {
+        super();
+        this.url = url;
+        episodi = new ArrayList<Episodio>(12);
+    }
+
+    public static boolean checkUrl(String url) {
+
+        return Pattern.matches(REGEX_VALIDAZIONE_URL_LISTA_PUNTATE, url);
+    }
+
+    public List<Episodio> getEpisodi(){
+        return episodi;
+    }
+
+
+    public Elements getElementi() {
+        return elementi;
+    }
+
+
+    public void setElementi(Elements elementi) {
+        this.elementi = elementi;
+    }
+
+
+    public Document getDoc() {
+        return doc;
+    }
+
+    public void setDoc(Document doc) {
+        this.doc = doc;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void insertEpisodesUrls(String firstPage, int maxEp) {
+        episodi.clear();
+        String nextPage = firstPage;
+        parseListUrls(firstPage, maxEp);
+        while (nextPage != null && episodi.size()<maxEp) { //se il link della prossima pagina non è null (esiste una prossima pagina) e se gli episodi nella lista non sono piu di quelli che ha richiesto l'utente
+            nextPage = getNextPage(nextPage);  //scarico pagina successiva
+            parseListUrls(nextPage, maxEp); //inserisco i link della PAGINA di ogni episodio contenuto nella pagina elaborata nello step precedente
+            System.out.println("Links trovati: "+episodi.size()); //conteggio link - solo per test
+        }
+
+    }
+
+    public void parseListUrls(String url, int max) {
+        Document doc = null;
+        if (url != null) {
+            try {
+                doc = Jsoup.connect(url).get();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Elements links = doc.select("figure > a[href]");
+            for (int i=0; (i<links.size()&&i<max); i++){
+                Element link = links.get(i);
+                Episodio eps = new Episodio(extractURLmp3fromPlayerPage(link.absUrl("href")),link.attr("title")); // L'oggetto episodio viene creato con URL al file mp3 e Nome. L'URL al file .mp3 tramite il metodo "extractURLmp3fromPlayerPage", che a sua volta prende in ingresso il link alla pagina dell'episodio, estratto tramite selettore "href". Il titolo viene prelevato tramite selettore "title". Entrambi i paramentri sono passati al costruttore della classe Episodio
+                episodi.add(eps); //viene aggiunto un nuovo oggetto Episodio all'arraylist
+            }
+        }
+    }
+
+
+    public static String getNextPage(String url) {
+        Document doc = null;
+        String nextUrl = null;
+        if (url != null) {
+            try {
+                doc = Jsoup.connect(url).get();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Element el = doc.getElementsByClass(SELETTORE_STRINGA_PAGINA_SUCCESSIVA).first();
+            if (el != null) {
+                nextUrl = el.absUrl("href");
+            }
+        }
+        return nextUrl;
+    }
+
+
+
+    public static String extractURLmp3fromPlayerPage(String url) {
+        String u = url;
+        Document doc = null;
+        try {
+            doc = Jsoup.connect(u).get();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Element urlelement = doc.selectFirst(IFRAME); //estraggo IFRAME contenente il link al file .mp3
+
+        return buildMp3Url(urlelement.toString()); //dall'iframe, estraggo il link diretto al file .mp3
+    }
+
+
+    private static String buildMp3Url(String url) { //tramite regex, estrare il link diretto al file mp3 da una stringa
+        String mp3url = null;
+        Pattern p = Pattern.compile(REGEX_MP3);
+        Matcher m = p.matcher(url);
+        while(m.find()) {
+            mp3url=m.group(2);
+        }
+        return mp3url;
+    }
+
+
+
+    public class Episodio {
+        private String title;
+        private String url;
+
+        public Episodio(String url, String title) {
+            this.setUrl(url);
+            this.setTitle(title);
+        }
+
+        public String getTitle() {
+            return title;
+        }
+        public void setTitle(String title) {
+            this.title = title;
+        }
+        public String getUrl() {
+            return url;
+        }
+        public void setUrl(String url) {
+            this.url = url;
+        }
+    }
+
+}
