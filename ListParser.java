@@ -74,13 +74,13 @@ public class ListParser {
     }
 
     public void insertEpisodesUrls(String firstPage, int maxEp) {
-        episodi.clear();
+        getEpisodi().clear();
         String nextPage = firstPage;
         parseListUrls(firstPage, maxEp);
         while (nextPage != null && episodi.size()<maxEp) { //se il link della prossima pagina non è null (esiste una prossima pagina) e se gli episodi nella lista non sono piu di quelli che ha richiesto l'utente
             nextPage = getNextPage(nextPage);  //scarico pagina successiva
             parseListUrls(nextPage, maxEp); //inserisco i link della PAGINA di ogni episodio contenuto nella pagina elaborata nello step precedente
-            System.out.println("Links trovati: "+episodi.size()); //conteggio link - solo per test
+            System.out.println("Links trovati: "+getEpisodi().size()); //conteggio link - solo per test
         }
 
     }
@@ -97,7 +97,7 @@ public class ListParser {
             for (int i=0; (i<links.size()&&i<max); i++){
                 Element link = links.get(i);
                 Episodio eps = new Episodio(extractURLmp3fromPlayerPage(link.select(A_TAG).attr(JSOUP_SELECT_HREF)),link.text());  // L'oggetto episodio viene creato con URL e Nome estratti tramite i rispettivi tag elencati tra le costanti. L'URL al file .mp3 è costruito tramite il metodo "extractURLmp3fromPlayerPage", che a sua volta prende in ingresso il link alla pagina dell'episodio
-                episodi.add(eps); //viene aggiunto un nuovo oggetto Episodio all'arraylist
+                getEpisodi().add(eps); //viene aggiunto un nuovo oggetto Episodio all'arraylist
             }
         }
     }
