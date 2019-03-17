@@ -73,29 +73,29 @@ public class ListParser {
         this.url = url;
     }
 
-    public void insertEpisodesUrls(String firstPage, int maxEp) {
+    public void insertEpisodesUrls(String firstPage, int maxEp) { //paramentri: URL Pagina 1 della lista episodi del programma, numero di link diretti (.mp3) richiesti
         getEpisodi().clear();
         String nextPage = firstPage;
         parseListUrls(firstPage, maxEp);
-        while (nextPage != null && episodi.size()<maxEp) { //se il link della prossima pagina non è null (esiste una prossima pagina) e se gli episodi nella lista non sono piu di quelli che ha richiesto l'utente
+        while (nextPage != null && episodi.size()<maxEp) { //se il link della prossima pagina non è null (quindi esiste una pagina successiva) e se gli episodi nella lista non sono piu di quelli che ha richiesto l'utente
             nextPage = getNextPage(nextPage);  //scarico pagina successiva
             parseListUrls(nextPage, maxEp); //inserisco i link della PAGINA di ogni episodio contenuto nella pagina elaborata nello step precedente
-            System.out.println("Links trovati: "+getEpisodi().size()); //conteggio link - solo per test
+            System.out.println("Links trovati: "+getEpisodi().size()); //conteggio e stampa link - solo per test
         }
 
     }
 
     public void parseListUrls(String url, int max) {
         Document doc = null;
-        if (url != null) {
+        if (url != null) { 
             try {
-                doc = Jsoup.connect(url).get();
+                doc = Jsoup.connect(url).get(); //parsing documento HTML
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            Elements links = doc.getElementsByClass(CLASSI_CONTENITORE_URL_EPISODI_E_DESCRIZIONE);
-            for (int i=0; (i<links.size()&&i<max); i++){
-                Element link = links.get(i);
+            Elements links = doc.getElementsByClass(CLASSI_CONTENITORE_URL_EPISODI_E_DESCRIZIONE); //estrazione degli elementi tramite tag. Ogni elemento contiene link e descrizione ed è salvato in un oggetto di tipo Elements, iterabile
+            for (int i=0; (i<links.size()&&i<max); i++){ //itero tra gli elementi con un ciclo for each
+                Element link = links.get(i); //ottengo un singolo elemento per ogni iterazione
                 Episodio eps = new Episodio(extractURLmp3fromPlayerPage(link.select(A_TAG).attr(JSOUP_SELECT_HREF)),link.text());  // L'oggetto episodio viene creato con URL e Nome estratti tramite i rispettivi tag elencati tra le costanti. L'URL al file .mp3 è costruito tramite il metodo "extractURLmp3fromPlayerPage", che a sua volta prende in ingresso il link alla pagina dell'episodio
                 getEpisodi().add(eps); //viene aggiunto un nuovo oggetto Episodio all'arraylist
             }
